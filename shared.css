@@ -41,7 +41,7 @@ pre {
 }
 
 code {
-  white-space: pre;
+  white-space: pre-wrap;
   background-color: var(--code-color);
   padding: 10px;
   border-radius: 10px;

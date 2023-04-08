@@ -146,9 +146,12 @@ function open(filename: FixedArray[Nat8], T: TypeType): T;
             This allows for one <var>open()</var> function but still
             have these unique many file types.
         </p>
+
+
         <h4>Type properties</h4>
         <p>
             This is a novel idea (I think?).
+            All syntax up to this point is poorly defined
             Imagine a type like the following:
         </p>
 <code>
@@ -172,6 +175,44 @@ generic [F: File(EditMode is Write or Append), R: Region]
 function append(file: &[F, R], str: FixedArray[Nat8]): Unit;
 
 function close(file: File): Unit;
+</code>
+        <p>
+            The idea here is that type properties can be solved 
+            at compile time. Additionally, I believe that this can
+            be done with a decidable type system. This can? be 
+            implemented in other languages at compile time as well,
+            like in C++ but it abuses the type systems capablities.
+        </p>
+        <p>
+            This even handles branching to an extent:
+        </p>
+<code>
+-- API:
+type Example: Linear has
+    Prop1: A or B;
+    Prop2: A or B;
+is
+    -- irrelevant
+end;
+
+function create(): Example(A, A);
+-- the syntax for writeable borrow is poorly/undefined as of now
+generic [R: Region]
+function setProp1ToB(e: &![Example(Prop1 to B), R]): Unit;
+
+-- doesn't depend on Prop1 so it can be used when Prop2
+-- is ambiguous
+function consume(e: Example(Prop2 is A)): Unit;
+
+
+
+-- Use/Example:
+let e: Example := create();
+if randomBool then
+    setProp1ToB(&!e)
+end if;
+consume(e);
+-- compiles
 </code>
         <p>
             
