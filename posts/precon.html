@@ -117,10 +117,10 @@ function close(file: T): Unit;
 </code>
         <p>
             This is not a fun API to write.
-            Using it is much less bad. but the many open functions 
-            is a massive pain.
+            Using it is much less bad, but the many <var>open</var> functions 
+            are a massive pain.
             Additionally, this pretty simple file API 
-            is 52 lines without any implementations of functions
+            is 52 lines without implementations of functions
             and some data structures. 
         </p> 
         <p>
@@ -151,7 +151,7 @@ function open(filename: FixedArray[Nat8], T: TypeType): T;
         <h4>Type properties</h4>
         <p>
             This is a novel idea (I think?).
-            All syntax up to this point is poorly defined
+            All syntax after this point is poorly defined.
             Imagine a type like the following:
         </p>
 <code>
@@ -208,14 +208,20 @@ function consume(e: Example(Prop2 is A)): Unit;
 
 -- Use/Example:
 let e: Example := create();
-if randomBool then
+if randomBool() then
     setProp1ToB(&!e)
 end if;
+-- here on out Prop1 could be A or B
 consume(e);
 -- compiles
 </code>
         <p>
-            
+            Basically, if a property is ambiguous (may have changed).
+            the variable can still be used if the functions used afterward
+            don't require that property to be defined or any values that it
+            may hold are allowed. For example, if a type allows <var>A or B or C or D</var> 
+            and we know the function accepts <var>A or B or C</var> and it is 
+            ambiguous between <var>B or C</var> that would be valid.
         </p>
     </div>
 </body>
