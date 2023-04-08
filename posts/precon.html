@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../shared.css">
+    <title>Enforcing pre & postconditions</title>
+</head>
+<body>
+    <div id="main">
+        <h1>
+            Enforcing pre & postconditions
+        </h1>
+        <p>
+            [better intro]
+            Warning: This assumes knowledge of linear types right now.
+            I was reading the 
+            <a href="https://austral-lang.org">austral</a>
+            discord. 
+            When <samp>Verdagon</samp> said:
+<pre>
+Verdagon: hey! just had a bit of a revelation about linear types
+Verdagon: linear types are great for enforcing preconditions and postconditions
+</pre>
+        <p>
+            What I believe he means here is that you can create an 
+            API like this.
+        </p>
+<code>
+type Array[T: Type]: Linear;
+
+-- just a wrapper type around Array[T]
+type SortedArray[T: Type]: Linear;
+
+generic [T: Type]
+function sort(arr: Array[T]): SortedArray[T];
+
+generic [T: Type]
+function binarySearch(arr: SortedArray[T]): Option[T];
+</code>
+        <p>
+        Here there is no way to create a sorted array without calling
+        <var>sort()</var> and therefore it is impossible to call 
+        <var>binarySearch()</var> with an unsorted array which would be
+        a bug. Which has now been prevented at compile time.
+        </p>
+        <p>
+            I thought this was interesting and wanted to use it to create
+            a file API.
+            I decided I wanted to have the following ways to open a file.
+            <ul>
+                <li>Read</li>
+                <li>Write</li>
+                <li>ReadWrite</li>
+                <li>Append</li>
+                <li>ReadAppend</li>
+            </ul>
+            Any combinations with both Write and Append are not useful as 
+            write allows appending. 
+            The issue is we end up with the following API:
+        </p>
+<code>
+-- all of the types wrap this one
+type FileInternal: Free;
+
+type FileRead: Linear;
+type FileWrite: Linear;
+type FileReadWrite: Linear;
+type FileAppend: Linear;
+type FileReadAppend: Linear;
+
+-- this isn't exposed in the interface but 
+-- you should know it exists
+typeclass FileWrapper[T: Type] is
+    method getInternal(): FileInternal;
+end;
+instance FileWrapper(FileRead);
+instance FileWrapper(FileWrite);
+instance FileWrapper(FileReadWrite);
+instance FileWrapper(FileAppend);
+instance FileWrapper(FileReadAppend);
+
+-- no methods
+typeclass FileReadable[T: Type(FileWrapper)] is end;
+instance FileReadable(FileRead);
+instance FileReadable(FileReadWrite);
+instance FileReadable(FileReadAppend);
+-- no methods
+typeclass FileWriteable[T: Type(FileWrapper)] is end;
+instance FileWriteable(FileWrite);
+instance FileWriteable(FileReadWrite);
+-- no methods
+typeclass FileAppendable[T: Type(FileWrapper)] is end;
+instance FileAppendable(FileWrite);
+instance FileAppendable(FileReadWrite);
+instance FileAppendable(FileAppend);
+instance FileAppendable(FileReadAppend);
+
+function openR(filename: FixedArray[Nat8]): FileRead;
+function openW(filename: FixedArray[Nat8]): FileWrite;
+function openRW(filename: FixedArray[Nat8]): FileReadWrite;
+function openA(filename: FixedArray[Nat8]): FileAppend;
+function openRA(filename: FixedArray[Nat8]): FileReadAppend;
+
+generic [T: Type(FileReadable), R: Region]
+function read(file: &[T, R], length: Index): FixedArray[Nat8];
+
+generic [T: Type(FileWriteable), R: Region]
+function write(file: &[T, R], FixedArray[Nat8]): Unit;
+
+generic [T: Type(FileAppendable), R: Region]
+function append(file: &[T, R], FixedArray[Nat8]): Unit;
+
+generic [T: Type(FileWrapper)]
+function close(file: T): Unit;
+</code>
+        <p>
+            This is not a fun API to write.
+            Using it is much less bad. but the many open functions 
+            is a massive pain.
+            Additionally, this pretty simple file API 
+            is 52 lines without any implementations of functions
+            and some data structures. 
+        </p> 
+        <p>
+            Now many functions
+            that use files have to awkwardly ask for a generic with the
+            features that it uses rather than one File type.
+        </p>
+
+
+
+        <h3>Solutions</h3>
+        <h4>Types as Types</h4>
+        <p>
+            One solution to this is to allow the passing in of types.
+            We could then do something like
+        </p>
+<code>
+-- Type is taking for the complete type universe so 
+-- TypeType will have to do
+function open(filename: FixedArray[Nat8], T: TypeType): T;
+</code>
+        <p>
+            This allows for one <var>open()</var> function but still
+            have these unique many file types.
+        </p>
+        <h4>Type properties</h4>
+        <p>
+            This is a novel idea (I think?).
+            Imagine a type like the following:
+        </p>
+<code>
+type File: Linear has
+    Readable: Yes or No;
+    EditMode: Write or Append or None;
+is
+    -- some internal stuff
+end;
+
+function open(FixedArray[Nat8], r: File#Readable, 
+              w: File#EditMode): File(r, w);
+
+generic [F: File(Readable is Yes), R: Region]
+function read(file: &[F, R], length: Index): FixedArray[Nat8];
+
+generic [F: File(EditMode is Write), R: Region]
+function write(file: &[F, R], bytes: FixedArray[Nat8]): Unit;
+
+generic [F: File(EditMode is Write or Append), R: Region]
+function append(file: &[F, R], str: FixedArray[Nat8]): Unit;
+
+function close(file: File): Unit;
+</code>
+        <p>
+            
+        </p>
+    </div>
+</body>
+</html>

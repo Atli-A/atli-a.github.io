@@ -1,0 +1,59 @@
+:root {
+  --gap-size: 1em;
+  --code-color: #282828;
+}
+
+body {
+  padding: 0px;
+  background-color: #333;
+  color: #ddd;
+  font-family: "Courier New", Courier, monospace;
+}
+
+#main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-size);
+  width: 75%;
+  margin: auto;
+  margin-top: var(--gap-size);
+}
+
+hr {
+  width: 90%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0px;
+}
+
+p,
+pre {
+  margin: 0px;
+}
+pre {
+  white-space: pre-wrap;
+}
+
+code {
+  white-space: pre;
+  background-color: var(--code-color);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+var {
+  background-color: var(--code-color);
+  display: inline-block;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+a {
+  color: #999;
+}
