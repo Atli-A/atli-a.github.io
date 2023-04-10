@@ -59,7 +59,7 @@ export const austral_rules = [
         color: blue
     },
     {
-        pattern: `[A-Z][${vchar}]*(?<![^${vchar}])`,
+        pattern: `(?<=[^${vchar}])[A-Z][${vchar}]*`,
         color: green
     }
 ];
