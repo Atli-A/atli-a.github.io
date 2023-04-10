@@ -43,7 +43,7 @@ generic [T: Type]
 function sort(arr: Array[T]): SortedArray[T];
 
 generic [T: Type]
-function binarySearch(arr: SortedArray[T]): Option[T];
+function binarySearch(arr: SortedArray[T], ...): Option[T];
 </code>
         <p>
         Here there is no way to create a sorted array without calling
