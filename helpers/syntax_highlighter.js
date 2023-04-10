@@ -41,7 +41,7 @@ export function highlight(text, rules) {
 
 
 const yellow = "#ffffbb"
-const comment = "#bbffff"
+const comment = "#bbffffbb"
 const blue = "#bbffff"
 const green = "#bbffbb"
 const purple = "#ff66ff"
