@@ -16,8 +16,10 @@
             A better way to enforce pre & postconditions
         </h1>
         <p>
-            Warning: This assumes knowledge of linear types right now.
-        </p> 
+            This post assumes knowledge of linear types. If you'd like to learn
+            them you can find a good tutorial 
+            <a href="https://austral-lang.org/linear-types">here</a>.
+        </p>
         <p>
             [better intro]
             I was reading the 
@@ -32,11 +34,11 @@ Verdagon: linear types are great for enforcing preconditions and postconditions
             What I believe he means here is that you can create an 
             API like this.
         </p>
-<code>
-type Array[T: Type]: Linear;
+<code lang="austral">
+record Array[T: Type]: Linear;
 
 -- just a wrapper type around Array[T]
-type SortedArray[T: Type]: Linear;
+record SortedArray[T: Type]: Linear;
 
 generic [T: Type]
 function sort(arr: Array[T]): SortedArray[T];
@@ -65,7 +67,7 @@ function binarySearch(arr: SortedArray[T]): Option[T];
             write allows appending. 
             The issue is we end up with the following API:
         </p>
-<code>
+<code lang="austral">
 -- all of the types wrap this one
 type FileInternal: Free;
 
@@ -142,14 +144,13 @@ function close(file: T): Unit;
             One solution to this is to allow the passing in of types.
             We could then do something like
         </p>
-<code>
+<code lang="austral">
 -- Type is taking for the complete type universe so 
 -- TypeType will have to do
 function open(filename: FixedArray[Nat8], T: TypeType): T;
 </code>
         <p>
-            This allows for one <var>open()</var> function but still
-            have these unique many file types.
+            This allows for one <var>open()</var> function which simplifies the API but hides the complexity of all these different types flying around.
         </p>
 
 
@@ -159,8 +160,8 @@ function open(filename: FixedArray[Nat8], T: TypeType): T;
             All syntax after this point is poorly defined.
             Imagine a type like the following:
         </p>
-<code>
-type File: Linear has
+<code lang="austral">
+record File: Linear has
     Readable: Yes or No;
     EditMode: Write or Append or None;
 is
@@ -191,9 +192,9 @@ function close(file: File): Unit;
         <p>
             This even handles branching to an extent:
         </p>
-<code>
+<code lang="austral">
 -- API:
-type Example: Linear has
+record Example: Linear has
     Prop1: A or B;
     Prop2: A or B;
 is
@@ -229,5 +230,13 @@ consume(e);
             ambiguous between <var>B or C</var> that would be valid.
         </p>
     </div>
+
+    
+    <script type="module">
+        import { highlight, austral_rules} from "../helpers/syntax_highlighter.js";
+        document.querySelectorAll("code[lang='austral']").forEach(elem => {
+            elem.innerHTML = highlight(elem.innerText, austral_rules);
+        });
+    </script>
 </body>
 </html>

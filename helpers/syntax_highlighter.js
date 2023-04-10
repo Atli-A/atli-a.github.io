@@ -1,18 +1,65 @@
-export function highlight(rules, text) {
-  rules.forEach((rule) => {});
-  split = [text];
-  for (let i = 0; i < rules.length; i++) {
-    pattern = rules[i].pattern;
-    color = rules[i].color;
-    // for each in matchall
-    const matches = t.matchAll(pattern);
-    next_splits = [];
-    matches.forEach((match) => {
-      str = match[0];
-      start = match.index;
-      end = match.lastIndex;
-      next_splits.push(t.substr);
-    });
-    splits = next_splits;
-  }
+// I don't care if you steal this syntax highlighter
+// but I would encourage you not to because it is 
+// terribly written
+
+export function highlight(text, rules) {
+    let split = [text];
+    for (const rule of rules) {
+        const pattern = rule.pattern;
+        const color = rule.color;
+        // for each in matchall
+        split = split.map(item => {
+            if (typeof item === "string") {
+                let new_splits = [];
+                let last = 0;
+                const matches = item.matchAll(pattern);
+                for (const match of matches) {
+                    const start = match.index;
+                    const end = start + match[0].length;
+                    new_splits.push(item.substring(last, start));
+                    new_splits.push({
+                        color: color,
+                        str: match[0]
+                    });
+                    last = end;
+                }
+                new_splits.push(item.substring(last, item.length));
+                return new_splits;
+            }
+            return item;
+        }).flat()
+    }
+
+    return split.reduce(
+        (accumulator, cur) => {
+            if (typeof cur === "string") {
+                return accumulator + cur;
+            }
+            return accumulator + `<span style='color:${cur.color}'>${cur.str}</span>`
+        }, "");
 }
+
+
+const yellow = "#ffffbb"
+const comment = "#bbffff"
+const blue = "#bbffff"
+const green = "#bbffbb"
+const vchar = "A-Za-z0-9_"
+export const austral_rules = [
+    {
+        pattern: "--.*(\n|$)",
+        color: comment
+    },
+    {
+        pattern: `( |\n|^)+(generic|let|if|end if|then|is|has|and|not|instance)`,
+        color: yellow
+    },
+    { 
+        pattern: `( |\n|^)+(typeclass|method|function|body|module|end|union|record|import)`,
+        color: blue
+    },
+    {
+        pattern: `[A-Z][${vchar}]*(?<![^${vchar}])`,
+        color: green
+    }
+];
