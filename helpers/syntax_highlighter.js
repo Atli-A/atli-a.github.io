@@ -44,6 +44,8 @@ const yellow = "#ffffbb"
 const comment = "#bbffff"
 const blue = "#bbffff"
 const green = "#bbffbb"
+const purple = "#ff66ff"
+
 const vchar = "A-Za-z0-9_"
 export const austral_rules = [
     {
@@ -51,15 +53,19 @@ export const austral_rules = [
         color: comment
     },
     {
-        pattern: `( |\n|^)+(generic|let|if|end if|then|is|has|and|not|instance)`,
+        pattern: `( |\n|^)+(generic|let|if|end if|then|and|not|instance)`,
         color: yellow
     },
     { 
-        pattern: `( |\n|^)+(typeclass|method|function|body|module|end|union|record|import)`,
+        pattern: `( |\n|^)+(typeclass|method|function|body|module|end|union|record|import|is|has)`,
         color: blue
     },
     {
         pattern: `(?<=[^${vchar}])[A-Z][${vchar}]*`,
         color: green
+    },
+    {
+        pattern: `(".*"|(?<=[^${vchar}])[0-9])`,
+        color: purple
     }
 ];
