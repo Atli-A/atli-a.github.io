@@ -53,11 +53,11 @@ export const austral_rules = [
         color: comment
     },
     {
-        pattern: `( |\n|^)+(generic|let|if|end if|then|and|not|instance)`,
+        pattern: `( |\n|^)+(generic|let|if|end if|then|and|not|instance|or)`,
         color: yellow
     },
     { 
-        pattern: `( |\n|^)+(typeclass|method|function|body|module|end|union|record|import|is|has)`,
+        pattern: `( |\n|^)+(typeclass|method|function|body|module|end|union|record|import|is|has|to)`,
         color: blue
     },
     {

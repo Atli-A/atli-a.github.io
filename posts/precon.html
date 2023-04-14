@@ -80,6 +80,8 @@ type FileReadAppend: Linear;
 -- you should know it exists
 typeclass FileWrapper[T: Type] is
     method getInternal(): FileInternal;
+    method open(filename: String): T;
+    -- arguably, close should be here but it doesn't need to be so???
 end;
 instance FileWrapper(FileRead);
 instance FileWrapper(FileWrite);
@@ -103,31 +105,24 @@ instance FileAppendable(FileReadWrite);
 instance FileAppendable(FileAppend);
 instance FileAppendable(FileReadAppend);
 
-function openR(filename: FixedArray[Nat8]): FileRead;
-function openW(filename: FixedArray[Nat8]): FileWrite;
-function openRW(filename: FixedArray[Nat8]): FileReadWrite;
-function openA(filename: FixedArray[Nat8]): FileAppend;
-function openRA(filename: FixedArray[Nat8]): FileReadAppend;
-
 generic [T: Type(FileReadable), R: Region]
-function read(file: &[T, R], length: Index): FixedArray[Nat8];
+function read(file: &[T, R], length: Index): String;
 
 generic [T: Type(FileWriteable), R: Region]
-function write(file: &[T, R], bytes: FixedArray[Nat8]): Unit;
+function write(file: &[T, R], bytes: String): Unit;
 
 generic [T: Type(FileAppendable), R: Region]
-function append(file: &[T, R], bytes: FixedArray[Nat8]): Unit;
+function append(file: &[T, R], bytes: String): Unit;
 
 generic [T: Type(FileWrapper)]
 function close(file: T): Unit;
 </code>
         <p>
             This is not a fun API to write.
-            Using it is much less bad, but the many <var>open</var> functions 
-            are a massive pain.
-            Additionally, this pretty simple file API 
-            is 52 lines without implementations of functions
-            and some data structures. 
+            Using it isn't too bad but it's far from ideal.
+            Additionally, this pretty simple file API has many instances
+	    that take up lots of code and many methods would have nearly 
+	    identical internals.
         </p> 
         <p>
             Now many functions
@@ -135,24 +130,7 @@ function close(file: T): Unit;
             features that it uses rather than one File type.
         </p>
 
-
-
-        <h3>Solutions</h3>
-        <h4>Types as Types</h4>
-        <p>
-            One solution to this is to allow the passing in of types.
-            We could then do something like
-        </p>
-<code lang="austral">
--- Type is taking for the complete type universe so 
--- TypeType will have to do
-function open(filename: FixedArray[Nat8], T: TypeType): T;
-</code>
-        <p>
-            This allows for one <var>open()</var> function which simplifies the API but hides the complexity of all these different types flying around. I think this isn't a strong solution.
-        </p>
-
-        <h4>Type properties</h4>
+        <h4>Solution?: Type properties</h4>
         <p>
             This is a novel idea (I think?).
             All syntax after this point is poorly defined.
@@ -166,17 +144,16 @@ is
     -- some internal stuff
 end;
 
-function open(filename: FixedArray[Nat8], r: File#Readable, 
-              w: File#EditMode): File(r, w);
+function open(filename: String, r: File#Readable, w: File#EditMode): File(r, w);
 
 generic [F: File(Readable is Yes), R: Region]
-function read(file: &[F, R], length: Index): FixedArray[Nat8];
+function read(file: &[F, R], length: Index): String;
 
 generic [F: File(EditMode is Write), R: Region]
-function write(file: &[F, R], bytes: FixedArray[Nat8]): Unit;
+function write(file: &[F, R], bytes: String): Unit;
 
 generic [F: File(EditMode is Write or Append), R: Region]
-function append(file: &[F, R], bytes: FixedArray[Nat8]): Unit;
+function append(file: &[F, R], bytes: String): Unit;
 
 function close(file: File): Unit;
 </code>
@@ -225,8 +202,32 @@ consume(e);
             don't require that property to be defined or any values that it
             may hold are allowed. For example, if a type allows <var>A or B or C or D</var> 
             and we know the function accepts <var>A or B or C</var> and it is 
-            ambiguous between <var>B or C</var> that would be valid.
+            ambiguous between <var>B or C</var> that would be valid. In this case, that a 
+	    property is ambiguous when its information is needed, the compiler would throw
+	    an error.
         </p>
+	<p>
+            I think that this type-state programming is quite a useful idea for preventing bugs
+	    at compile time. In fact linear types are arguably syntatic sugar over this type of 
+	    restriction, where at the end of a linear type's scope a function call that expects
+	    its linearity property to be Consumed at the end of scope, and where all functions
+	    that take it as input take it as input but with the restriction that it is 
+	    Unconsumed.
+	</p>
+	<p>
+	    This could prevent whole classes of bugs, similar to how linear types can prevent
+	    <var>write after close</var> or <var>double close</var>. While linear types can in
+	    theory do all of the things these type properties do (without the ambiguoity handling).
+	    However this creates many typeclasses and types that aren't needed. For instance, the 
+	    SortedArray example from the beginning would require SortedArray to have all the methods 
+	    that Array does.
+	</p>
+	<p>
+		I'd like to thank 
+		<a href="http://verdagon.dev">Verdagon</a> and
+		<a href="http://borretti.me">Fernando Borretti</a> for giving feedback on draft versions 
+		of this post.
+	</p>
     </div>
 
     
