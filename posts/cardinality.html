@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../shared.css">
+  <title>A niche optimization</title>
+</head>
+<body>
+  <div id="main">
+    <a id="home" href="/">Home</a>
+    <h1>A niche optimization</h1>
+    <h2>Types are sets of values</h2>
+    <div>
+      The following two statements are equivalent: <br>
+      <var>var x: u8</var> <br>
+      <var>x</var>$ \in u8$ where $ u8 \equiv \{ 0,1, ... 255\}$
+    </div>
+
+    <h2>Cardinality of <s>sets</s> types</h2>
+    <div>
+      Since we now recognize that <var>u8</var> is a set we can take its cardinality.
+      $|u8| = 256$
+
+      With good reflection, its possible to take the cardinality of any type.
+      <h3>Core Types</h3>
+      TODO <br>
+
+      if $T$ is an integer type: $|T| = 2^{\mathrm{bitwidth(T)}}$
+      <h3>Composite Types</h3>
+      Struct: $|X \times Y \times Z| = |X| \times |Y| \times |Z|$ <br>
+      Unions: $|X \cup Y \cup Z| = |X| + |Y| + |Z|$ <br>
+      Arrays: $|X^n| = |X|^n$ <br>
+
+      <h3>Pointers</h3>
+      <p>
+      I haven't figured out how or if this could work for high school.
+      </p>
+      
+    </div>
+
+    <h2>Whats the point?</h2>
+    Other than a fun mental exercise what is the point of this? <br>
+    Use in generic data structure.
+
+    <h3>Set / Maps</h3>
+    <p>
+    For <var>Set<T></var> we know the maximum size$ = |T|$. <br>
+    For <var>Map<K, V></var> max size$ = |K|$. <br>
+    This is a niche optimization which prevents over allocation when increasing the size of the Map or Set.
+    <a href="https://gist.github.com/Atli-A/77ddf297e417950a7a961f7609c64b7d">Zig implementation</a>.
+    </p>
+
+    <h2>Type Indexing / Hash function</h2>
+    <h3>Finite Cardinality Types</h3>
+    <h3>Infinite/Unknown Cardinality Types</h3>
+  </div>
+  <script type="text/javascript"
+  src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js">
+  </script>
+</body>
