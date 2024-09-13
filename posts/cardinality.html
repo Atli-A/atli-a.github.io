@@ -25,17 +25,16 @@
 
       With good reflection, its possible to take the cardinality of any type.
       <h3>Core Types</h3>
-      TODO <br>
 
       if $T$ is an integer type: $|T| = 2^{\mathrm{bitwidth(T)}}$
       <h3>Composite Types</h3>
-      Struct: $|X \times Y \times Z| = |X| \times |Y| \times |Z|$ <br>
-      Unions: $|X \cup Y \cup Z| = |X| + |Y| + |Z|$ <br>
-      Arrays: $|X^n| = |X|^n$ <br>
+      For a struct $S$ with children types $C_{1}, ..., C_n$: $\displaystyle |S| = \prod_{i=1}^{n} |C_i|$. <br>
+      For a union $U$ with children types $C_{1}, ..., C_n$: $|U| = \sum_{i=1}^{n} |C_i|$. <br>
+      For an array $A$ of type $C$ and length $n$: $|A| = |C|^n$ <br>
 
       <h3>Pointers</h3>
       <p>
-      I haven't figured out how or if this could work for high school.
+      I haven't figured out how or if this even could work for pointers.
       </p>
       
     </div>
@@ -52,9 +51,6 @@
     <a href="https://gist.github.com/Atli-A/77ddf297e417950a7a961f7609c64b7d">Zig implementation</a>.
     </p>
 
-    <h2>Type Indexing / Hash function</h2>
-    <h3>Finite Cardinality Types</h3>
-    <h3>Infinite/Unknown Cardinality Types</h3>
   </div>
   <script type="text/javascript"
   src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js">
